@@ -195,68 +195,6 @@ class HerokuPostgreSQLBackup:
             print(f"❌ CSVバックアップエラー: {e}")
             return False
 
-    def create_restore_script(self):
-        restore_script = f"""#!/usr/bin/env python3
-# 復元スクリプト (Generated: {self.timestamp})
-
-import os
-import subprocess
-import json
-import pandas as pd
-from sqlalchemy import create_engine, text
-
-# 使用方法:
-# 1. Heroku dumpファイルからの復元:
-#    heroku pg:psql --app YOUR_APP_NAME < heroku_backup_{self.timestamp}.dump
-
-# 2. pg_dump SQLファイルからの復元:
-#    psql -h hostname -p port -U username -d database < pgdump_backup_{self.timestamp}.sql
-
-# 3. JSONデータからの復元:
-def restore_from_json():
-    with open('data_backup_{self.timestamp}.json', 'r', encoding='utf-8') as f:
-        data = json.load(f)
-
-    database_url = os.environ.get("DATABASE_URL")
-    engine = create_engine(database_url)
-
-    # ここに復元ロジックを実装
-    pass
-
-# 4. CSVデータからの復元:
-def restore_from_csv():
-    database_url = os.environ.get("DATABASE_URL")
-    engine = create_engine(database_url)
-
-    csv_dir = 'csv_backup_{self.timestamp}'
-    tables = ['app_settings', 'prompts', 'summary_usage']
-
-    for table in tables:
-        try:
-            df = pd.read_csv(f'{{csv_dir}}/{{table}}.csv')
-            df.to_sql(table, engine, if_exists='append', index=False)
-            print(f"復元完了: {{table}}")
-        except Exception as e:
-            print(f"復元エラー {{table}}: {{e}}")
-
-if __name__ == "__main__":
-    print("復元方法を選択してください:")
-    print("1. JSONから復元")
-    print("2. CSVから復元")
-    choice = input("選択 (1-2): ")
-
-    if choice == "1":
-        restore_from_json()
-    elif choice == "2":
-        restore_from_csv()
-"""
-
-        restore_file = self.backup_dir / f"restore_script_{self.timestamp}.py"
-        with open(restore_file, 'w', encoding='utf-8') as f:
-            f.write(restore_script)
-
-        print(f"✅ 復元スクリプト作成: {restore_file}")
-
     def backup_all(self, app_name=None):
         print(f"🚀 バックアップ開始 - {self.timestamp}")
         print(f"📁 バックアップディレクトリ: {self.backup_dir.absolute()}")
@@ -271,12 +209,8 @@ if __name__ == "__main__":
             results['heroku_cli'] = False
 
         results['pg_dump'] = self.backup_with_pg_dump()
-
         results['json'] = self.backup_data_as_json()
-
         results['csv'] = self.backup_data_as_csv()
-
-        self.create_restore_script()
 
         print("\n📊 バックアップ結果:")
         for method, success in results.items():
