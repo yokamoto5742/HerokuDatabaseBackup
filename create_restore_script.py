@@ -1,9 +1,8 @@
 import datetime
-import os
 import pytz
 from pathlib import Path
 
-from config_manager import load_config  # 追加
+from config_manager import load_config
 
 JST = pytz.timezone('Asia/Tokyo')
 

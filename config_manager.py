@@ -1,7 +1,6 @@
 import configparser
 import os
 import sys
-from typing import Any
 
 
 def get_config_path():
