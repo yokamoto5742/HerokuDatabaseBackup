@@ -31,6 +31,33 @@ class HerokuPostgreSQLBackup:
         self.backup_dir.mkdir(exist_ok=True)
         self.timestamp = datetime.datetime.now(JST).strftime("%Y%m%d_%H%M%S")
 
+    def cleanup_old_backups(self, days=1):
+        try:
+            current_time = datetime.datetime.now(JST)
+            cutoff_time = current_time - datetime.timedelta(days=days)
+
+            deleted_count = 0
+            for backup_file in self.backup_dir.glob("*.dump"):
+                file_ctime = datetime.datetime.fromtimestamp(
+                    backup_file.stat().st_ctime,
+                    tz=JST
+                )
+
+                if file_ctime < cutoff_time:
+                    try:
+                        backup_file.unlink()
+                        print(f"🗑️  古いバックアップファイルを削除: {backup_file.name}")
+                        deleted_count += 1
+                    except OSError as e:
+                        print(f"❌ ファイル削除エラー {backup_file.name}: {e}")
+
+            if deleted_count > 0:
+                print(f"✅ {deleted_count}個の古いバックアップファイルを削除しました")
+            else:
+                print("📂 削除対象の古いバックアップファイルはありませんでした")
+
+        except Exception as e:
+            print(f"❌ バックアップファイル削除エラー: {e}")
 
     def backup_with_heroku_cli(self, app_name):
         try:
@@ -67,6 +94,7 @@ if __name__ == "__main__":
     try:
         backup = HerokuPostgreSQLBackup()
         app_name = os.environ.get("HEROKU_APP_NAME")
+        backup.cleanup_old_backups()
         backup.backup_with_heroku_cli(app_name)
 
     except Exception as e:
