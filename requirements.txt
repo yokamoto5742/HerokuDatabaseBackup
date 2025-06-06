@@ -1,8 +1,8 @@
 altgraph==0.17.4
 greenlet==3.2.2
-numpy==2.2.6
+numpy==1.24.4
 packaging==25.0
-pandas==2.3.0
+pandas==2.0.3
 pefile==2023.2.7
 psycopg2-binary==2.9.10
 pyinstaller==6.14.0
