@@ -1,10 +1,17 @@
+altgraph==0.17.4
 greenlet==3.2.2
 numpy==2.2.6
+packaging==25.0
 pandas==2.3.0
+pefile==2023.2.7
 psycopg2-binary==2.9.10
+pyinstaller==6.14.0
+pyinstaller-hooks-contrib==2025.4
 python-dateutil==2.9.0.post0
 python-dotenv==1.1.0
 pytz==2025.2
+pywin32-ctypes==0.2.3
+setuptools==80.9.0
 six==1.17.0
 SQLAlchemy==2.0.41
 typing_extensions==4.14.0
