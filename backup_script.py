@@ -11,13 +11,16 @@ import pytz
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, text
 
-BACKUP_DIR = r"C:\Users\yokam\OneDrive\HerokuDatabaseBackup\backups"
+from config_manager import load_config
+
 JST = pytz.timezone('Asia/Tokyo')
 
 
 class HerokuPostgreSQLBackup:
     def __init__(self):
         load_dotenv()
+        config = load_config()
+        backup_dir = config.get('Paths', 'backup_path')
 
         self.database_url = os.environ.get("DATABASE_URL")
         if not self.database_url:
@@ -27,7 +30,7 @@ class HerokuPostgreSQLBackup:
             self.database_url = self.database_url.replace("postgres://", "postgresql://", 1)
 
         self.parsed_url = urlparse(self.database_url)
-        self.backup_dir = Path(BACKUP_DIR)
+        self.backup_dir = Path(backup_dir)
         self.backup_dir.mkdir(exist_ok=True)
         self.timestamp = datetime.datetime.now(JST).strftime("%Y%m%d_%H%M%S")
 
@@ -196,23 +199,6 @@ class HerokuPostgreSQLBackup:
         print(f"\n🎯 {successful_methods}/4 の方法で成功")
 
         return results
-
-
-def schedule_backup():
-    try:
-        backup = HerokuPostgreSQLBackup()
-        app_name = os.environ.get("HEROKU_APP_NAME")
-        results = backup.backup_all(app_name)
-
-        log_file = Path(BACKUP_DIR) / f"backup_log_{backup.timestamp}.txt"
-        with open(log_file, 'w', encoding='utf-8') as f:
-            f.write(f"バックアップ実行日時: {backup.timestamp}\n")
-            f.write(f"結果: {results}\n")
-
-        print(f"📝 ログファイル: {log_file}")
-
-    except Exception as e:
-        print(f"❌ スケジュールバックアップエラー: {e}")
 
 
 if __name__ == "__main__":

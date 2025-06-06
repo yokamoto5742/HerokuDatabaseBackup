@@ -11,13 +11,16 @@ import pytz
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, text
 
-BACKUP_DIR = r"C:\Users\yokam\OneDrive\HerokuDatabaseBackup\backups"
+from config_manager import load_config
+
 JST = pytz.timezone('Asia/Tokyo')
 
 
 class HerokuPostgreSQLBackup:
     def __init__(self):
         load_dotenv()
+        config = load_config()
+        backup_dir = config.get('Paths', 'backup_path')
 
         self.database_url = os.environ.get("DATABASE_URL")
         if not self.database_url:
@@ -27,11 +30,14 @@ class HerokuPostgreSQLBackup:
             self.database_url = self.database_url.replace("postgres://", "postgresql://", 1)
 
         self.parsed_url = urlparse(self.database_url)
-        self.backup_dir = Path(BACKUP_DIR)
+        self.backup_dir = Path(backup_dir)
         self.backup_dir.mkdir(exist_ok=True)
         self.timestamp = datetime.datetime.now(JST).strftime("%Y%m%d_%H%M%S")
 
-    def cleanup_old_backups(self, days=30):
+    def cleanup_old_backups(self, days=None):
+        if days is None:
+            config = load_config()
+            days = config.getint('Backup', 'cleanup_days', fallback=30)
         try:
             current_time = datetime.datetime.now(JST)
             cutoff_time = current_time - datetime.timedelta(days=days)

@@ -3,13 +3,18 @@ import os
 import pytz
 from pathlib import Path
 
-BACKUP_DIR = r"C:\Users\yokam\OneDrive\HerokuDatabaseBackup\backups"
+from config_manager import load_config  # 追加
+
 JST = pytz.timezone('Asia/Tokyo')
+
+def get_backup_dir():
+    config = load_config()
+    return config.get('Paths', 'backup_path')
 
 
 class RestoreScriptGenerator:
     def __init__(self, backup_dir=None, timestamp=None):
-        self.backup_dir = Path(backup_dir or BACKUP_DIR)
+        self.backup_dir = Path(backup_dir or get_backup_dir())
         self.timestamp = timestamp or datetime.datetime.now(JST).strftime("%Y%m%d_%H%M%S")
 
     def create_restore_script(self):
@@ -224,9 +229,10 @@ def main():
     print("=" * 40)
 
     # バックアップディレクトリの確認
-    backup_dir = input(f"バックアップディレクトリ (デフォルト: {BACKUP_DIR}): ").strip()
+    default_backup_dir = get_backup_dir()
+    backup_dir = input(f"バックアップディレクトリ (デフォルト: {default_backup_dir}): ").strip()
     if not backup_dir:
-        backup_dir = BACKUP_DIR
+        backup_dir = default_backup_dir
 
     backup_dir = Path(backup_dir)
     if not backup_dir.exists():
