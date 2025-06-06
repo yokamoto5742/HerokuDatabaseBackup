@@ -1,14 +1,15 @@
-import os
-import subprocess
-import json
 import csv
 import datetime
-import pytz
+import json
+import os
+import subprocess
 from pathlib import Path
 from urllib.parse import urlparse
-from sqlalchemy import create_engine, text
+
 import pandas as pd
+import pytz
 from dotenv import load_dotenv
+from sqlalchemy import create_engine, text
 
 BACKUP_DIR = r"C:\Users\yokam\OneDrive\HerokuDatabaseBackup\backups"
 JST = pytz.timezone('Asia/Tokyo')
@@ -28,30 +29,10 @@ class HerokuPostgreSQLBackup:
         self.parsed_url = urlparse(self.database_url)
         self.backup_dir = Path(BACKUP_DIR)
         self.backup_dir.mkdir(exist_ok=True)
-
         self.timestamp = datetime.datetime.now(JST).strftime("%Y%m%d_%H%M%S")
 
-    def check_heroku_cli(self):
-        try:
-            result = subprocess.run(["heroku", "--version"],
-                                    capture_output=True, text=True, shell=True)
-            return result.returncode == 0
-        except FileNotFoundError:
-            return False
-
-    def check_pg_dump(self):
-        try:
-            result = subprocess.run(["pg_dump", "--version"],
-                                    capture_output=True, text=True, shell=True)
-            return result.returncode == 0
-        except FileNotFoundError:
-            return False
 
     def backup_with_heroku_cli(self, app_name):
-        if not self.check_heroku_cli():
-            print("❌ Heroku CLIがインストールされていません")
-            return False
-
         try:
             backup_file = self.backup_dir / f"heroku_backup_{self.timestamp}.dump"
 
@@ -80,11 +61,6 @@ class HerokuPostgreSQLBackup:
             return False
 
     def backup_with_pg_dump(self):
-        if not self.check_pg_dump():
-            print("❌ pg_dumpがインストールされていません")
-            print("PostgreSQLをインストールしてください: https://www.postgresql.org/download/windows/")
-            return False
-
         try:
             backup_file = self.backup_dir / f"pgdump_backup_{self.timestamp}.sql"
 
@@ -201,7 +177,6 @@ class HerokuPostgreSQLBackup:
 
         results = {}
 
-        # 方法1: Heroku CLI (推奨)
         if app_name:
             results['heroku_cli'] = self.backup_with_heroku_cli(app_name)
         else:
