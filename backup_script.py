@@ -62,41 +62,6 @@ class HerokuPostgreSQLBackup:
             print(f"❌ Herokuバックアップエラー: {e}")
             return False
 
-    def backup_with_pg_dump(self):
-        try:
-            backup_file = self.backup_dir / f"pgdump_backup_{self.timestamp}.sql"
-
-            print("🔄 pg_dumpでバックアップ中...")
-
-            env = os.environ.copy()
-            env['PGPASSWORD'] = self.parsed_url.password
-
-            cmd = [
-                "pg_dump",
-                "--host", self.parsed_url.hostname,
-                "--port", str(self.parsed_url.port),
-                "--username", self.parsed_url.username,
-                "--dbname", self.parsed_url.path[1:],  # 先頭の"/"を除去
-                "--no-password",
-                "--verbose",
-                "--clean",
-                "--no-acl",
-                "--no-owner",
-                "--file", str(backup_file)
-            ]
-
-            result = subprocess.run(cmd, env=env, capture_output=True, text=True, shell=True)
-
-            if result.returncode == 0:
-                print(f"✅ pg_dumpバックアップ完了: {backup_file}")
-                return True
-            else:
-                print(f"❌ pg_dumpバックアップ失敗: {result.stderr}")
-                return False
-
-        except Exception as e:
-            print(f"❌ pg_dumpエラー: {e}")
-            return False
 
     def backup_data_as_json(self):
         try:
@@ -211,23 +176,20 @@ if __name__ == "__main__":
 
         print("\n💡 利用可能なバックアップ方法:")
         print("1. Heroku CLI バックアップ (推奨)")
-        print("2. pg_dump SQLバックアップ")
-        print("3. JSON データバックアップ")
-        print("4. CSV データバックアップ")
-        print("5. すべての方法で実行")
+        print("2. JSON データバックアップ")
+        print("3. CSV データバックアップ")
+        print("4. すべての方法で実行")
 
-        choice = input("\n選択してください (1-5): ").strip()
+        choice = input("\n選択してください (1-4): ").strip()
 
         if choice == "1":
             app_name = os.environ.get("HEROKU_APP_NAME")
             backup.backup_with_heroku_cli(app_name)
         elif choice == "2":
-            backup.backup_with_pg_dump()
-        elif choice == "3":
             backup.backup_data_as_json()
-        elif choice == "4":
+        elif choice == "3":
             backup.backup_data_as_csv()
-        elif choice == "5":
+        elif choice == "4":
             app_name = os.environ.get("HEROKU_APP_NAME")
             backup.backup_all(app_name if app_name else None)
         else:
