@@ -80,7 +80,7 @@ heroku auth:whoami  # ログイン確認
 
 ### 対話式バックアップ
 ```bash
-python backup_script.py
+python full_backup_script.py
 ```
 
 メニューから選択：
