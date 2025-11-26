@@ -6,7 +6,8 @@ def build_executable():
         "pyinstaller",
         "--name=HerokuDatabaseBackup",
         "--windowed",
-        "--add-data", "config.ini;.",
+        "--add-data", ".env:.",
+        "--add-data", "utils/config.ini:.",
         "main.py"
     ])
 
