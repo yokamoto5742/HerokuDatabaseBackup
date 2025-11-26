@@ -6,9 +6,9 @@ from urllib.parse import urlparse
 import pytz
 from dotenv import load_dotenv
 
-from backup_data_as_csv import backup_data_as_csv
-from backup_data_as_json import backup_data_as_json
-from backup_with_heroku_cli import backup_with_heroku_cli
+from service.backup_data_as_csv import backup_data_as_csv
+from service.backup_data_as_json import backup_data_as_json
+from service.backup_with_heroku_cli import backup_with_heroku_cli
 from utils.config_manager import load_config
 
 JST = pytz.timezone('Asia/Tokyo')
