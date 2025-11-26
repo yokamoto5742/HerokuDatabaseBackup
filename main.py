@@ -7,7 +7,7 @@ from urllib.parse import urlparse
 import pytz
 from dotenv import load_dotenv
 
-from config_manager import load_config
+from utils.config_manager import load_config
 
 JST = pytz.timezone('Asia/Tokyo')
 
