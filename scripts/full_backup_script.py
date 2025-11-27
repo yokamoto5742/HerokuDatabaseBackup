@@ -1,5 +1,4 @@
 import os
-import sys
 
 from dotenv import load_dotenv
 
@@ -23,9 +22,7 @@ if __name__ == "__main__":
 
         # Heroku CLIを使用する選択肢の場合、ログイン状態をチェック
         if choice in ["1", "4"]:
-            if not ensure_heroku_login():
-                print("❌ Herokuにログインしていないため、処理を中断します")
-                sys.exit(1)
+            ensure_heroku_login()
 
         if choice == "1":
             app_name = os.environ.get("HEROKU_APP_NAME")

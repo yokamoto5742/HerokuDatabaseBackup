@@ -1,5 +1,4 @@
 import os
-import sys
 
 from dotenv import load_dotenv
 
@@ -14,9 +13,7 @@ if __name__ == "__main__":
 
     try:
         # Herokuログイン状態をチェック
-        if not ensure_heroku_login():
-            print("❌ Herokuにログインしていないため、処理を中断します")
-            sys.exit(1)
+        ensure_heroku_login()
 
         backup = HerokuPostgreSQLBackup()
         app_name = os.environ.get("HEROKU_APP_NAME")

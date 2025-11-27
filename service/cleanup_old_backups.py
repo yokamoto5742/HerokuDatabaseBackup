@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytz
 
-from config_manager import load_config
+from utils.config_manager import load_config
 
 JST = pytz.timezone('Asia/Tokyo')
 
