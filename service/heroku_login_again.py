@@ -1,3 +1,4 @@
+import logging
 import os
 import subprocess
 import sys
@@ -5,6 +6,8 @@ import threading
 import time
 
 from utils.config_manager import load_config
+
+logger = logging.getLogger(__name__)
 
 
 def check_heroku_login() -> bool:
@@ -17,8 +20,14 @@ def check_heroku_login() -> bool:
             text=True,
             timeout=10
         )
-        return result.returncode == 0
-    except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
+        is_logged_in = result.returncode == 0
+        if is_logged_in:
+            logger.info("Heroku CLIのログイン状態を確認しました")
+        else:
+            logger.warning("Heroku CLIのログイン状態が切れています")
+        return is_logged_in
+    except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as e:
+        logger.error(f"Herokuログイン状態のチェック中にエラー: {e}")
         return False
 
 
@@ -42,6 +51,7 @@ def open_folder_async(folder_path: str) -> None:
 
 def prompt_heroku_login() -> None:
     """Herokuに再度ログインするように促す"""
+    logger.warning("Heroku CLIのログイン状態が切れています")
     print("\n⚠️ Heroku CLIのログイン状態が切れています")
     print("⚠️ Herokuに再度ログインしてください\n")
 
@@ -55,6 +65,7 @@ def prompt_heroku_login() -> None:
         folder_thread.start()
 
         # Heroku CLIでログインコマンドを実行（自動的にEnterを送信）
+        logger.info("Heroku CLIでログインを開始します")
         print("🔄 Heroku CLIでログインを開始...")
         print("💡 ブラウザが開いたらログインしてください")
 
@@ -79,27 +90,37 @@ def prompt_heroku_login() -> None:
         stdout, stderr = process.communicate(timeout=120)
 
         if process.returncode == 0:
+            logger.info("ログインプロセスが完了しました")
             print("✅ ログインプロセスが完了しました")
         else:
+            logger.warning(f"ログインプロセスが終了しました: {stderr}")
             print(f"⚠️ ログインプロセスが終了しました: {stderr}")
 
     except subprocess.TimeoutExpired:
+        logger.error("ログインがタイムアウトしました")
         print("⚠️ ログインがタイムアウトしました")
         process.kill()
     except Exception as e:
+        logger.error(f"ログイン処理中にエラーが発生しました: {e}", exc_info=True)
         print(f"❌ ログイン処理中にエラーが発生しました: {e}")
 
 
 def ensure_heroku_login() -> bool:
     """Herokuにログインしているか確認し、必要に応じてログインを促す"""
+    logger.info("Herokuログイン状態を確認中...")
+
     if not check_heroku_login():
         prompt_heroku_login()
 
         # ログイン後に再度チェック
         if not check_heroku_login():
+            logger.error("Herokuへのログインに失敗しました")
             print("❌ Herokuへのログインに失敗しました")
             return False
 
+        logger.info("Herokuログイン確認完了")
         print("✅ Herokuログイン確認完了")
+    else:
+        logger.info("Herokuログイン確認完了")
 
     return True

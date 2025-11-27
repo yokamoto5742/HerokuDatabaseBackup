@@ -1,8 +1,14 @@
 import datetime
-import pytz
+import logging
+import sys
 from pathlib import Path
 
-from config_manager import load_config
+import pytz
+
+sys.path.append(str(Path(__file__).parent.parent))
+
+from utils.config_manager import get_log_directory, get_log_retention_days, load_config
+from utils.log_rotation import setup_logging
 
 JST = pytz.timezone('Asia/Tokyo')
 
@@ -224,6 +230,14 @@ def create_restore_script_from_backup_data(backup_dir, timestamp):
 
 def main():
     """スタンドアロン実行用のメイン関数"""
+    # ログシステムの初期化
+    log_dir = get_log_directory()
+    log_retention = get_log_retention_days()
+    setup_logging(log_directory=log_dir, log_retention_days=log_retention, log_name='RestoreScriptGenerator')
+
+    logger = logging.getLogger(__name__)
+    logger.info("復元スクリプト生成器を起動しました")
+
     print("🛠️ Heroku復元スクリプト生成器")
     print("=" * 40)
 
@@ -234,15 +248,21 @@ def main():
         backup_dir = default_backup_dir
 
     backup_dir = Path(backup_dir)
+    logger = logging.getLogger(__name__)
+
     if not backup_dir.exists():
+        logger.error(f"ディレクトリが存在しません: {backup_dir}")
         print(f"❌ ディレクトリが存在しません: {backup_dir}")
         return
 
     # 利用可能なバックアップファイルを表示
     dump_files = list(backup_dir.glob("heroku_backup_*.dump"))
     if not dump_files:
+        logger.warning("ダンプファイルが見つかりません")
         print("❌ ダンプファイルが見つかりません")
         return
+
+    logger.info(f"{len(dump_files)}個のダンプファイルを検出しました")
 
     print("\\n📁 利用可能なダンプファイル:")
     for i, dump_file in enumerate(dump_files, 1):
@@ -256,13 +276,18 @@ def main():
             selected_file = dump_files[choice]
             timestamp = selected_file.stem.replace("heroku_backup_", "")
 
+            logger.info(f"選択されたダンプファイル: {selected_file.name}")
+
             generator = RestoreScriptGenerator(backup_dir, timestamp)
             restore_file = generator.create_restore_script()
 
+            logger.info(f"復元スクリプトを作成しました: {restore_file}")
             print(f"\\n🎯 復元スクリプトが正常に作成されました!")
         else:
+            logger.warning("無効な選択がされました")
             print("❌ 無効な選択です")
-    except (ValueError, IndexError):
+    except (ValueError, IndexError) as e:
+        logger.error(f"無効な入力: {e}")
         print("❌ 無効な入力です")
 
 

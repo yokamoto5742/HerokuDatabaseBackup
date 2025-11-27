@@ -44,3 +44,18 @@ def save_config(config: configparser.ConfigParser):
     except IOError as e:
         print(f"設定ファイルの保存中にエラーが発生しました: {e}")
         raise
+
+
+def get_log_directory() -> str:
+    config = load_config()
+    return config.get('LOGGING', 'log_directory', fallback='logs')
+
+
+def get_log_retention_days() -> int:
+    config = load_config()
+    return config.getint('LOGGING', 'log_retention_days', fallback=7)
+
+
+def get_log_level() -> str:
+    config = load_config()
+    return config.get('LOGGING', 'log_level', fallback='INFO').upper()
