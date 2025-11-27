@@ -1,9 +1,16 @@
 import subprocess
 from pathlib import Path
 
+from service.heroku_login_again import ensure_heroku_login
+
 
 def backup_with_heroku_cli(backup_dir: Path, timestamp: str, app_name: str) -> bool:
     """Heroku CLIを使用してバックアップを作成"""
+    # Herokuログイン状態をチェック
+    if not ensure_heroku_login():
+        print("❌ Herokuにログインしていないため、バックアップを実行できません")
+        return False
+
     try:
         backup_file = backup_dir / f"heroku_backup_{timestamp}.dump"
 
