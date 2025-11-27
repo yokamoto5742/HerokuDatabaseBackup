@@ -3,7 +3,8 @@ import os
 import sys
 
 
-def get_config_path() -> str:
+def _get_config_path() -> str:
+    """内部使用のみ"""
     if getattr(sys, 'frozen', False):
         # PyInstallerでビルドされた実行ファイルの場合
         base_path = getattr(sys, '_MEIPASS', os.path.dirname(__file__))
@@ -13,20 +14,18 @@ def get_config_path() -> str:
 
     return os.path.join(base_path, 'config.ini')
 
-CONFIG_PATH = get_config_path()
-
-
 
 def load_config() -> configparser.ConfigParser:
     config = configparser.ConfigParser()
+    config_path = _get_config_path()
     try:
-        with open(CONFIG_PATH, encoding='utf-8') as f:
+        with open(config_path, encoding='utf-8') as f:
             config.read_file(f)
     except FileNotFoundError:
-        print(f"設定ファイルが見つかりません: {CONFIG_PATH}")
+        print(f"設定ファイルが見つかりません: {config_path}")
         raise
     except PermissionError:
-        print(f"設定ファイルを読み取る権限がありません: {CONFIG_PATH}")
+        print(f"設定ファイルを読み取る権限がありません: {config_path}")
         raise
     except configparser.Error as e:
         print(f"設定ファイルの解析中にエラーが発生しました: {e}")
@@ -35,11 +34,12 @@ def load_config() -> configparser.ConfigParser:
 
 
 def save_config(config: configparser.ConfigParser) -> None:
+    config_path = _get_config_path()
     try:
-        with open(CONFIG_PATH, 'w', encoding='utf-8') as configfile:
+        with open(config_path, 'w', encoding='utf-8') as configfile:
             config.write(configfile)
     except PermissionError:
-        print(f"設定ファイルを書き込む権限がありません: {CONFIG_PATH}")
+        print(f"設定ファイルを書き込む権限がありません: {config_path}")
         raise
     except IOError as e:
         print(f"設定ファイルの保存中にエラーが発生しました: {e}")
@@ -59,3 +59,10 @@ def get_log_retention_days() -> int:
 def get_log_level() -> str:
     config = load_config()
     return config.get('LOGGING', 'log_level', fallback='INFO').upper()
+
+
+def get_backup_tables() -> list[str]:
+    """バックアップ対象のテーブル名リストを取得"""
+    config = load_config()
+    tables_str = config.get('Database', 'backup_tables', fallback='app_settings,prompts,summary_usage')
+    return [table.strip() for table in tables_str.split(',')]

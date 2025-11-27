@@ -49,27 +49,21 @@ def open_folder_async(folder_path: str) -> None:
         print(f"⚠️ フォルダを開く際にエラーが発生: {e}")
 
 
-def prompt_heroku_login() -> None:
-    """Herokuに再度ログインするように促す"""
-    logger.warning("Heroku CLIのログイン状態が切れています")
-    print("\n⚠️ Heroku CLIのログイン状態が切れています")
-    print("⚠️ Herokuに再度ログインしてください\n")
+def open_folder_in_background(executable_path: str) -> None:
+    """フォルダを別スレッドで開く"""
+    folder_thread = threading.Thread(target=open_folder_async, args=(executable_path,))
+    folder_thread.daemon = True
+    folder_thread.start()
+
+
+def execute_heroku_login() -> bool:
+    """Heroku CLIログインコマンドを実行"""
+    logger.info("Heroku CLIでログインを開始します")
+    print("🔄 Heroku CLIでログインを開始...")
+    print("💡 ブラウザが開いたらログインしてください")
 
     process: subprocess.Popen[str] | None = None
     try:
-        config = load_config()
-        executable_file_path = config["Paths"]["executable_file_path"]
-
-        # フォルダを非同期で開く（ログインプロセスをブロックしないように）
-        folder_thread = threading.Thread(target=open_folder_async, args=(executable_file_path,))
-        folder_thread.daemon = True
-        folder_thread.start()
-
-        # Heroku CLIでログインコマンドを実行（自動的にEnterを送信）
-        logger.info("Heroku CLIでログインを開始します")
-        print("🔄 Heroku CLIでログインを開始...")
-        print("💡 ブラウザが開いたらログインしてください")
-
         process = subprocess.Popen(
             ["heroku", "login"],
             shell=True,
@@ -85,8 +79,8 @@ def prompt_heroku_login() -> None:
             if process.stdin is not None:
                 process.stdin.write("\n")
                 process.stdin.flush()
-        except:
-            pass
+        except (BrokenPipeError, OSError):
+            logger.debug("stdinへの書き込みに失敗（プロセス終了済みの可能性）")
 
         # ログインプロセスの完了を待つ
         process.communicate(timeout=120)
@@ -94,18 +88,35 @@ def prompt_heroku_login() -> None:
         if process.returncode == 0:
             logger.info("ログインプロセスが完了しました")
             print("✅ ログインプロセスが完了しました")
+            return True
         else:
             logger.warning("ログインプロセスが終了しました")
             print("⚠️ ログインプロセスが終了しました")
+            return False
 
     except subprocess.TimeoutExpired:
         logger.error("ログインがタイムアウトしました")
         print("⚠️ ログインがタイムアウトしました")
         if process is not None:
             process.kill()
+        return False
     except Exception as e:
         logger.error(f"ログイン処理中にエラーが発生しました: {e}", exc_info=True)
         print(f"❌ ログイン処理中にエラーが発生しました: {e}")
+        return False
+
+
+def prompt_heroku_login() -> None:
+    """Herokuに再度ログインするように促す"""
+    logger.warning("Heroku CLIのログイン状態が切れています")
+    print("\n⚠️ Heroku CLIのログイン状態が切れています")
+    print("⚠️ Herokuに再度ログインしてください\n")
+
+    config = load_config()
+    executable_file_path = config["Paths"]["executable_file_path"]
+
+    open_folder_in_background(executable_file_path)
+    execute_heroku_login()
 
 
 def ensure_heroku_login() -> bool:

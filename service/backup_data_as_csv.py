@@ -3,19 +3,18 @@ from pathlib import Path
 import pandas as pd
 from sqlalchemy import create_engine
 
+from utils.config_manager import get_backup_tables
+from utils.database_helper import add_ssl_mode
+
 
 def backup_data_as_csv(database_url: str, backup_dir: Path, timestamp: str) -> bool:
     """データをCSV形式でバックアップ"""
     try:
-        db_url = database_url
-        if "?" in db_url:
-            db_url += "&sslmode=require"
-        else:
-            db_url += "?sslmode=require"
+        db_url = add_ssl_mode(database_url)
 
         engine = create_engine(db_url)
 
-        tables = ['app_settings', 'prompts', 'summary_usage']
+        tables = get_backup_tables()
         csv_dir = backup_dir / f"csv_backup_{timestamp}"
         csv_dir.mkdir(exist_ok=True)
 

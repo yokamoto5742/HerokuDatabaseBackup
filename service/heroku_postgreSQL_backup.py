@@ -39,14 +39,13 @@ class HerokuPostgreSQLBackup:
         logger.info(f"バックアップディレクトリ: {self.backup_dir.absolute()}")
 
 
-    def backup_with_heroku_cli_method(self, app_name: str) -> bool:
+    def backup_with_cli(self, app_name: str) -> bool:
         return backup_with_heroku_cli(self.backup_dir, self.timestamp, app_name)
 
-
-    def backup_data_as_json_method(self) -> bool:
+    def backup_as_json(self) -> bool:
         return backup_data_as_json(self.database_url, self.backup_dir, self.timestamp)
 
-    def backup_data_as_csv_method(self) -> bool:
+    def backup_as_csv(self) -> bool:
         return backup_data_as_csv(self.database_url, self.backup_dir, self.timestamp)
 
     def backup_all(self, app_name: str | None = None) -> dict[str, bool]:
@@ -60,17 +59,17 @@ class HerokuPostgreSQLBackup:
 
         if app_name:
             logger.info(f"Heroku CLIバックアップを実行します - アプリ名: {app_name}")
-            results['heroku_cli'] = self.backup_with_heroku_cli_method(app_name)
+            results['heroku_cli'] = self.backup_with_cli(app_name)
         else:
             logger.warning("Heroku app名が指定されていないため、Heroku CLIバックアップをスキップ")
             print("⚠️ Heroku app名が指定されていないため、Heroku CLIバックアップをスキップ")
             results['heroku_cli'] = False
 
         logger.info("JSONバックアップを実行します")
-        results['json'] = self.backup_data_as_json_method()
+        results['json'] = self.backup_as_json()
 
         logger.info("CSVバックアップを実行します")
-        results['csv'] = self.backup_data_as_csv_method()
+        results['csv'] = self.backup_as_csv()
 
         logger.info("バックアップ結果:")
         print("\n📊 バックアップ結果:")

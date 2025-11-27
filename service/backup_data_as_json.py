@@ -4,20 +4,19 @@ from pathlib import Path
 
 from sqlalchemy import create_engine, text
 
+from utils.config_manager import get_backup_tables
+from utils.database_helper import add_ssl_mode
+
 
 def backup_data_as_json(database_url: str, backup_dir: Path, timestamp: str) -> bool:
     """データをJSON形式でバックアップ"""
     try:
-        db_url = database_url
-        if "?" in db_url:
-            db_url += "&sslmode=require"
-        else:
-            db_url += "?sslmode=require"
+        db_url = add_ssl_mode(database_url)
 
         engine = create_engine(db_url)
 
         backup_data = {}
-        tables = ['app_settings', 'prompts', 'summary_usage']
+        tables = get_backup_tables()
 
         print("🔄 データをJSONでバックアップ中...")
 

@@ -7,12 +7,12 @@ import pytz
 
 sys.path.append(str(Path(__file__).parent.parent))
 
-from utils.config_manager import get_log_directory, get_log_retention_days, load_config
+from utils.config_manager import get_backup_tables, get_log_directory, get_log_retention_days, load_config
 from utils.log_rotation import setup_logging
 
 JST = pytz.timezone('Asia/Tokyo')
 
-def get_backup_dir():
+def get_backup_dir() -> str:
     config = load_config()
     return config.get('Paths', 'backup_path')
 
@@ -150,7 +150,7 @@ class HerokuDumpRestore:
                 print(tables_result.stdout)
 
             # 特定のテーブルの行数を確認
-            tables_to_check = ['app_settings', 'prompts', 'summary_usage']
+            tables_to_check = get_backup_tables()
             for table in tables_to_check:
                 count_cmd = f'heroku pg:psql --app {{app_name}} -c "SELECT COUNT(*) FROM {{table}};"'
                 count_result = subprocess.run(
