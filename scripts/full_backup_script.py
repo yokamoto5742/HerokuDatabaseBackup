@@ -8,14 +8,11 @@ from service.heroku_postgreSQL_backup import HerokuPostgreSQLBackup
 if __name__ == "__main__":
     load_dotenv()
 
-    print("🗄️ Heroku PostgreSQL バックアップツール")
-    print("=" * 50)
-
     try:
         backup = HerokuPostgreSQLBackup()
 
         print("\n💡 利用可能なバックアップ方法:")
-        print("1. Heroku CLI バックアップ (推奨)")
+        print("1. Heroku CLI バックアップ")
         print("2. JSON データバックアップ")
         print("3. CSV データバックアップ")
         print("4. すべての方法で実行")
