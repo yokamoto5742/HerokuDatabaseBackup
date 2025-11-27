@@ -17,12 +17,12 @@ logger = logging.getLogger(__name__)
 
 
 class HerokuPostgreSQLBackup:
-    def __init__(self):
+    def __init__(self) -> None:
         load_dotenv()
         config = load_config()
         backup_dir = config.get('Paths', 'backup_path')
 
-        self.database_url = os.environ.get("DATABASE_URL")
+        self.database_url: str = os.environ.get("DATABASE_URL", "")
         if not self.database_url:
             logger.error("DATABASE_URL環境変数が設定されていません")
             raise ValueError("DATABASE_URL環境変数が設定されていません")
@@ -39,17 +39,17 @@ class HerokuPostgreSQLBackup:
         logger.info(f"バックアップディレクトリ: {self.backup_dir.absolute()}")
 
 
-    def backup_with_heroku_cli_method(self, app_name):
+    def backup_with_heroku_cli_method(self, app_name: str) -> bool:
         return backup_with_heroku_cli(self.backup_dir, self.timestamp, app_name)
 
 
-    def backup_data_as_json_method(self):
+    def backup_data_as_json_method(self) -> bool:
         return backup_data_as_json(self.database_url, self.backup_dir, self.timestamp)
 
-    def backup_data_as_csv_method(self):
+    def backup_data_as_csv_method(self) -> bool:
         return backup_data_as_csv(self.database_url, self.backup_dir, self.timestamp)
 
-    def backup_all(self, app_name=None):
+    def backup_all(self, app_name: str | None = None) -> dict[str, bool]:
         logger.info(f"バックアップ開始 - {self.timestamp}")
         logger.info(f"バックアップディレクトリ: {self.backup_dir.absolute()}")
 

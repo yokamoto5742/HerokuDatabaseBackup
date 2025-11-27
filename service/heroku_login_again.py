@@ -55,6 +55,7 @@ def prompt_heroku_login() -> None:
     print("\n⚠️ Heroku CLIのログイン状態が切れています")
     print("⚠️ Herokuに再度ログインしてください\n")
 
+    process: subprocess.Popen[str] | None = None
     try:
         config = load_config()
         executable_file_path = config["Paths"]["executable_file_path"]
@@ -81,25 +82,27 @@ def prompt_heroku_login() -> None:
         # 少し待ってからEnterキーを自動送信
         time.sleep(1)
         try:
-            process.stdin.write("\n")
-            process.stdin.flush()
+            if process.stdin is not None:
+                process.stdin.write("\n")
+                process.stdin.flush()
         except:
             pass
 
         # ログインプロセスの完了を待つ
-        stdout, stderr = process.communicate(timeout=120)
+        process.communicate(timeout=120)
 
         if process.returncode == 0:
             logger.info("ログインプロセスが完了しました")
             print("✅ ログインプロセスが完了しました")
         else:
-            logger.warning(f"ログインプロセスが終了しました: {stderr}")
-            print(f"⚠️ ログインプロセスが終了しました: {stderr}")
+            logger.warning("ログインプロセスが終了しました")
+            print("⚠️ ログインプロセスが終了しました")
 
     except subprocess.TimeoutExpired:
         logger.error("ログインがタイムアウトしました")
         print("⚠️ ログインがタイムアウトしました")
-        process.kill()
+        if process is not None:
+            process.kill()
     except Exception as e:
         logger.error(f"ログイン処理中にエラーが発生しました: {e}", exc_info=True)
         print(f"❌ ログイン処理中にエラーが発生しました: {e}")

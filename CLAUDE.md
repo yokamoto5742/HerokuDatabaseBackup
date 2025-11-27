@@ -60,6 +60,10 @@ python -m pytest tests/ -v --tb=short --disable-warnings
 
 # Run specific test file
 python -m pytest tests/test_main.py -v
+
+# Run with coverage
+python -m pytest --cov=. --cov-report=html
+
 ```
 
 ### Type Checking
