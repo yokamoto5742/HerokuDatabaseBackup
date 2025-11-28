@@ -1,7 +1,5 @@
 import subprocess
-import sys
-from pathlib import Path
-from unittest.mock import MagicMock, Mock, call, patch
+from unittest.mock import Mock, patch
 
 import pytest
 

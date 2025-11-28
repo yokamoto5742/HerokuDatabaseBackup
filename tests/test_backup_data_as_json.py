@@ -1,7 +1,6 @@
 import datetime
 import json
-from pathlib import Path
-from unittest.mock import MagicMock, Mock, mock_open, patch
+from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
@@ -33,13 +32,13 @@ class TestBackupDataAsJson:
         row1._mapping = {
             'id': 1,
             'name': 'test_data',
-            'created_at': datetime.datetime(2023, 12, 1, 12, 0, 0)
+            'created_at': datetime.datetime(2023, 12, 1, 12)
         }
         row2 = Mock()
         row2._mapping = {
             'id': 2,
             'name': 'test_data2',
-            'created_at': datetime.datetime(2023, 12, 2, 12, 0, 0)
+            'created_at': datetime.datetime(2023, 12, 2, 12)
         }
         return [row1, row2]
 
@@ -66,7 +65,7 @@ class TestBackupDataAsJson:
             backup_file = mock_backup_dir / f"data_backup_{mock_timestamp}.json"
             assert backup_file.exists()
 
-            with open(backup_file, 'r', encoding='utf-8') as f:
+            with open(backup_file, encoding='utf-8') as f:
                 data = json.load(f)
 
             assert 'app_settings' in data
@@ -161,7 +160,7 @@ class TestBackupDataAsJson:
         mock_row = Mock()
         mock_row._mapping = {
             'id': 1,
-            'created_at': datetime.datetime(2023, 12, 1, 12, 0, 0),
+            'created_at': datetime.datetime(2023, 12, 1, 12),
             'updated_at': datetime.datetime(2023, 12, 2, 13, 30, 45)
         }
 
@@ -180,7 +179,7 @@ class TestBackupDataAsJson:
 
             assert result is True
             backup_file = mock_backup_dir / f"data_backup_{mock_timestamp}.json"
-            with open(backup_file, 'r', encoding='utf-8') as f:
+            with open(backup_file, encoding='utf-8') as f:
                 data = json.load(f)
 
             assert data['app_settings'][0]['created_at'] == '2023-12-01T12:00:00'

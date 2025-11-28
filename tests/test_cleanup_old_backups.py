@@ -1,6 +1,5 @@
 import datetime
-from pathlib import Path
-from unittest.mock import MagicMock, Mock, call, patch
+from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 import pytz
@@ -58,7 +57,6 @@ class TestCleanupOldBackups:
 
     def test_cleanup_old_backups_with_custom_days(self, mock_backup_dir, capsys):
         """正常系: カスタムの保持期間が指定された場合"""
-        import time
 
         mock_backup_dir.mkdir(parents=True, exist_ok=True)
 
@@ -83,7 +81,6 @@ class TestCleanupOldBackups:
 
     def test_cleanup_old_backups_no_old_files(self, mock_backup_dir, capsys):
         """正常系: 削除対象の古いファイルがない場合"""
-        import time
 
         mock_backup_dir.mkdir(parents=True, exist_ok=True)
 
@@ -108,7 +105,6 @@ class TestCleanupOldBackups:
 
     def test_cleanup_old_backups_only_dump_files(self, mock_backup_dir):
         """正常系: .dumpファイルのみが対象となる"""
-        import time
 
         mock_backup_dir.mkdir(parents=True, exist_ok=True)
 
@@ -134,7 +130,6 @@ class TestCleanupOldBackups:
 
     def test_cleanup_old_backups_file_deletion_error(self, mock_backup_dir, capsys):
         """異常系: ファイル削除時にエラーが発生した場合"""
-        import time
 
         mock_backup_dir.mkdir(parents=True, exist_ok=True)
 
@@ -209,7 +204,6 @@ class TestCleanupOldBackups:
 
     def test_cleanup_old_backups_multiple_files(self, mock_backup_dir, capsys):
         """正常系: 複数のファイルを削除する"""
-        import time
 
         mock_backup_dir.mkdir(parents=True, exist_ok=True)
 
@@ -253,7 +247,6 @@ class TestCleanupOldBackups:
 
     def test_cleanup_old_backups_boundary_date(self, mock_backup_dir):
         """正常系: 境界日のファイルは削除されない"""
-        import time
 
         mock_backup_dir.mkdir(parents=True, exist_ok=True)
 

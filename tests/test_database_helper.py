@@ -1,5 +1,3 @@
-import pytest
-
 from utils.database_helper import add_ssl_mode
 
 

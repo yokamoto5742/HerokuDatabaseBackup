@@ -1,7 +1,6 @@
 import os
 from pathlib import Path
-from unittest.mock import MagicMock, Mock, patch
-from urllib.parse import urlparse
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -179,7 +178,7 @@ class TestHerokuPostgreSQLBackup:
              patch('service.heroku_postgreSQL_backup.backup_data_as_csv', return_value=True):
 
             backup = HerokuPostgreSQLBackup()
-            results = backup.backup_all(app_name=None)
+            results = backup.backup_all()
 
             assert results['heroku_cli'] is False
             assert results['json'] is True
