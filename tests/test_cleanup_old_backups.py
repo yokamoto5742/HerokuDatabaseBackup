@@ -55,8 +55,10 @@ class TestCleanupOldBackups:
             assert not old_file.exists()
             assert recent_file.exists()
 
-    def test_cleanup_old_backups_with_custom_days(self, mock_backup_dir, capsys):
+    def test_cleanup_old_backups_with_custom_days(self, mock_backup_dir, caplog):
         """正常系: カスタムの保持期間が指定された場合"""
+        import logging
+        caplog.set_level(logging.INFO)
 
         mock_backup_dir.mkdir(parents=True, exist_ok=True)
 
@@ -76,11 +78,12 @@ class TestCleanupOldBackups:
             cleanup_old_backups(mock_backup_dir, days=7)
 
             assert not old_file.exists()
-            captured = capsys.readouterr()
-            assert '1個の古いバックアップファイルを削除しました' in captured.out
+            assert '1個の古いバックアップファイルを削除しました' in caplog.text
 
-    def test_cleanup_old_backups_no_old_files(self, mock_backup_dir, capsys):
+    def test_cleanup_old_backups_no_old_files(self, mock_backup_dir, caplog):
         """正常系: 削除対象の古いファイルがない場合"""
+        import logging
+        caplog.set_level(logging.INFO)
 
         mock_backup_dir.mkdir(parents=True, exist_ok=True)
 
@@ -100,8 +103,7 @@ class TestCleanupOldBackups:
             cleanup_old_backups(mock_backup_dir)
 
             assert recent_file.exists()
-            captured = capsys.readouterr()
-            assert '削除対象の古いバックアップファイルはありませんでした' in captured.out
+            assert '削除対象の古いバックアップファイルはありませんでした' in caplog.text
 
     def test_cleanup_old_backups_only_dump_files(self, mock_backup_dir):
         """正常系: .dumpファイルのみが対象となる"""
@@ -128,8 +130,10 @@ class TestCleanupOldBackups:
             assert not dump_file.exists()
             assert other_file.exists()
 
-    def test_cleanup_old_backups_file_deletion_error(self, mock_backup_dir, capsys):
+    def test_cleanup_old_backups_file_deletion_error(self, mock_backup_dir, caplog):
         """異常系: ファイル削除時にエラーが発生した場合"""
+        import logging
+        caplog.set_level(logging.ERROR)
 
         mock_backup_dir.mkdir(parents=True, exist_ok=True)
 
@@ -149,9 +153,8 @@ class TestCleanupOldBackups:
 
             cleanup_old_backups(mock_backup_dir)
 
-            captured = capsys.readouterr()
-            assert 'ファイル削除エラー' in captured.out
-            assert 'Permission denied' in captured.out
+            assert 'ファイル削除エラー' in caplog.text
+            assert 'Permission denied' in caplog.text
 
     def test_cleanup_old_backups_uses_config_default(self, mock_backup_dir, capsys):
         """正常系: 設定ファイルから保持期間を読み込む"""
@@ -180,8 +183,11 @@ class TestCleanupOldBackups:
 
             config_mock.getint.assert_called_once_with('Backup', 'cleanup_days', fallback=30)
 
-    def test_cleanup_old_backups_exception_handling(self, mock_backup_dir, capsys):
+    def test_cleanup_old_backups_exception_handling(self, mock_backup_dir, caplog):
         """異常系: 予期しない例外が発生した場合"""
+        import logging
+        caplog.set_level(logging.ERROR)
+
         mock_backup_dir.mkdir(parents=True, exist_ok=True)
 
         old_file = mock_backup_dir / "old_backup.dump"
@@ -199,11 +205,12 @@ class TestCleanupOldBackups:
 
             cleanup_old_backups(mock_backup_dir)
 
-            captured = capsys.readouterr()
-            assert 'バックアップファイル削除エラー' in captured.out
+            assert 'バックアップファイル削除エラー' in caplog.text
 
-    def test_cleanup_old_backups_multiple_files(self, mock_backup_dir, capsys):
+    def test_cleanup_old_backups_multiple_files(self, mock_backup_dir, caplog):
         """正常系: 複数のファイルを削除する"""
+        import logging
+        caplog.set_level(logging.INFO)
 
         mock_backup_dir.mkdir(parents=True, exist_ok=True)
 
@@ -228,11 +235,13 @@ class TestCleanupOldBackups:
             for file in files:
                 assert not file.exists()
 
-            captured = capsys.readouterr()
-            assert '5個の古いバックアップファイルを削除しました' in captured.out
+            assert '5個の古いバックアップファイルを削除しました' in caplog.text
 
-    def test_cleanup_old_backups_empty_directory(self, mock_backup_dir, capsys):
+    def test_cleanup_old_backups_empty_directory(self, mock_backup_dir, caplog):
         """正常系: 空のディレクトリでもエラーが発生しない"""
+        import logging
+        caplog.set_level(logging.INFO)
+
         mock_backup_dir.mkdir(parents=True, exist_ok=True)
 
         with patch('service.cleanup_old_backups.load_config') as mock_config:
@@ -242,8 +251,7 @@ class TestCleanupOldBackups:
 
             cleanup_old_backups(mock_backup_dir)
 
-            captured = capsys.readouterr()
-            assert '削除対象の古いバックアップファイルはありませんでした' in captured.out
+            assert '削除対象の古いバックアップファイルはありませんでした' in caplog.text
 
     def test_cleanup_old_backups_boundary_date(self, mock_backup_dir):
         """正常系: 境界日のファイルは削除されない"""

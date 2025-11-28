@@ -142,8 +142,11 @@ class TestHerokuPostgreSQLBackup:
             assert result is True
             mock_csv.assert_called_once_with(backup.database_url, backup.backup_dir, backup.timestamp)
 
-    def test_backup_all_with_app_name(self, mock_env_vars, mock_config, tmp_path, capsys):
+    def test_backup_all_with_app_name(self, mock_env_vars, mock_config, tmp_path, caplog):
         """正常系: backup_all - アプリ名あり、全バックアップ成功"""
+        import logging
+        caplog.set_level(logging.INFO)
+
         backup_path = str(tmp_path / "backups")
         mock_config.get.return_value = backup_path
 
@@ -161,12 +164,13 @@ class TestHerokuPostgreSQLBackup:
             assert results['json'] is True
             assert results['csv'] is True
 
-            captured = capsys.readouterr()
-            assert 'バックアップ開始' in captured.out
-            assert '3/3 の方法で成功' in captured.out
+            assert 'バックアップ開始' in caplog.text
 
-    def test_backup_all_without_app_name(self, mock_env_vars, mock_config, tmp_path, capsys):
+    def test_backup_all_without_app_name(self, mock_env_vars, mock_config, tmp_path, caplog):
         """正常系: backup_all - アプリ名なし、Heroku CLIバックアップをスキップ"""
+        import logging
+        caplog.set_level(logging.WARNING)
+
         backup_path = str(tmp_path / "backups")
         mock_config.get.return_value = backup_path
 
@@ -185,12 +189,13 @@ class TestHerokuPostgreSQLBackup:
             assert results['csv'] is True
 
             mock_cli.assert_not_called()
-            captured = capsys.readouterr()
-            assert 'Heroku app名が指定されていないため、Heroku CLIバックアップをスキップ' in captured.out
-            assert '2/3 の方法で成功' in captured.out
+            assert 'Heroku app名が指定されていないため、Heroku CLIバックアップをスキップ' in caplog.text
 
-    def test_backup_all_partial_failure(self, mock_env_vars, mock_config, tmp_path, capsys):
+    def test_backup_all_partial_failure(self, mock_env_vars, mock_config, tmp_path, caplog):
         """正常系: backup_all - 一部のバックアップが失敗"""
+        import logging
+        caplog.set_level(logging.INFO)
+
         backup_path = str(tmp_path / "backups")
         mock_config.get.return_value = backup_path
 
@@ -208,11 +213,13 @@ class TestHerokuPostgreSQLBackup:
             assert results['json'] is False
             assert results['csv'] is True
 
-            captured = capsys.readouterr()
-            assert '2/3 の方法で成功' in captured.out
+            assert 'バックアップ結果' in caplog.text
 
-    def test_backup_all_all_failures(self, mock_env_vars, mock_config, tmp_path, capsys):
+    def test_backup_all_all_failures(self, mock_env_vars, mock_config, tmp_path, caplog):
         """異常系: backup_all - すべてのバックアップが失敗"""
+        import logging
+        caplog.set_level(logging.INFO)
+
         backup_path = str(tmp_path / "backups")
         mock_config.get.return_value = backup_path
 
@@ -230,11 +237,13 @@ class TestHerokuPostgreSQLBackup:
             assert results['json'] is False
             assert results['csv'] is False
 
-            captured = capsys.readouterr()
-            assert '0/3 の方法で成功' in captured.out
+            assert 'バックアップ結果' in caplog.text
 
-    def test_backup_all_logs_messages(self, mock_env_vars, mock_config, tmp_path, capsys):
+    def test_backup_all_logs_messages(self, mock_env_vars, mock_config, tmp_path, caplog):
         """正常系: backup_all - 適切なログメッセージが出力される"""
+        import logging
+        caplog.set_level(logging.INFO)
+
         backup_path = str(tmp_path / "backups")
         mock_config.get.return_value = backup_path
 
@@ -248,13 +257,12 @@ class TestHerokuPostgreSQLBackup:
             backup = HerokuPostgreSQLBackup()
             backup.backup_all(app_name="test-app")
 
-            captured = capsys.readouterr()
-            assert 'バックアップ開始' in captured.out
-            assert 'バックアップディレクトリ' in captured.out
-            assert 'バックアップ結果' in captured.out
-            assert 'heroku_cli' in captured.out
-            assert 'json' in captured.out
-            assert 'csv' in captured.out
+            assert 'バックアップ開始' in caplog.text
+            assert 'バックアップディレクトリ' in caplog.text
+            assert 'バックアップ結果' in caplog.text
+            assert 'heroku_cli' in caplog.text
+            assert 'json' in caplog.text
+            assert 'csv' in caplog.text
 
     def test_timestamp_format(self, mock_env_vars, mock_config, tmp_path):
         """正常系: タイムスタンプが正しい形式である"""

@@ -4,7 +4,6 @@ import sys
 
 
 def _get_config_path() -> str:
-    """内部使用のみ"""
     if getattr(sys, 'frozen', False):
         # PyInstallerでビルドされた実行ファイルの場合
         base_path = getattr(sys, '_MEIPASS', os.path.dirname(__file__))

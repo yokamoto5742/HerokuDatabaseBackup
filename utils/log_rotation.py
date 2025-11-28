@@ -11,7 +11,7 @@ def get_project_root() -> Path:
 
 
 def setup_logging(log_directory: str = 'logs', log_retention_days: int = 7, log_name: str = 'HerokuDatabaseBackup'):
-    """ロギングシステムを初期化し、古いログを削除"""
+    """ロギングシステムを初期化し古いログを削除"""
     project_root = get_project_root()
     log_dir_path = project_root / log_directory
 

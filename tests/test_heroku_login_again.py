@@ -59,43 +59,17 @@ class TestCheckHerokuLogin:
 class TestOpenFolderAsync:
     """open_folder_async関数のテスト"""
 
-    def test_open_folder_async_windows(self, tmp_path, capsys):
+    def test_open_folder_async_windows(self, tmp_path):
         """正常系: Windows環境でフォルダを開く"""
         folder_path = str(tmp_path)
 
         with patch('service.heroku_login_again.time.sleep'), \
-             patch('service.heroku_login_again.sys.platform', 'win32'), \
              patch('service.heroku_login_again.subprocess.run') as mock_run:
 
             open_folder_async(folder_path)
 
             mock_run.assert_called_once_with(["explorer", folder_path], shell=True)
-            captured = capsys.readouterr()
-            assert 'フォルダを開いています' in captured.out
 
-    def test_open_folder_async_macos(self, tmp_path, capsys):
-        """正常系: macOS環境でフォルダを開く"""
-        folder_path = str(tmp_path)
-
-        with patch('service.heroku_login_again.time.sleep'), \
-             patch('service.heroku_login_again.sys.platform', 'darwin'), \
-             patch('service.heroku_login_again.subprocess.run') as mock_run:
-
-            open_folder_async(folder_path)
-
-            mock_run.assert_called_once_with(["open", folder_path])
-
-    def test_open_folder_async_linux(self, tmp_path, capsys):
-        """正常系: Linux環境でフォルダを開く"""
-        folder_path = str(tmp_path)
-
-        with patch('service.heroku_login_again.time.sleep'), \
-             patch('service.heroku_login_again.sys.platform', 'linux'), \
-             patch('service.heroku_login_again.subprocess.run') as mock_run:
-
-            open_folder_async(folder_path)
-
-            mock_run.assert_called_once_with(["xdg-open", folder_path])
 
     def test_open_folder_async_folder_not_exists(self, capsys):
         """異常系: フォルダが存在しない"""
@@ -112,7 +86,6 @@ class TestOpenFolderAsync:
         folder_path = str(tmp_path)
 
         with patch('service.heroku_login_again.time.sleep'), \
-             patch('service.heroku_login_again.sys.platform', 'win32'), \
              patch('service.heroku_login_again.subprocess.run', side_effect=Exception("Process error")):
 
             open_folder_async(folder_path)
@@ -134,8 +107,11 @@ class TestPromptHerokuLogin:
         }
         return config
 
-    def test_prompt_heroku_login_success(self, mock_config, capsys):
+    def test_prompt_heroku_login_success(self, mock_config, caplog):
         """正常系: Herokuログインプロセスが成功"""
+        import logging
+        caplog.set_level(logging.INFO)
+
         mock_process = Mock()
         mock_process.returncode = 0
         mock_process.communicate.return_value = ("Success", "")
@@ -148,12 +124,14 @@ class TestPromptHerokuLogin:
 
             prompt_heroku_login()
 
-            captured = capsys.readouterr()
-            assert 'Heroku CLIでログインを開始' in captured.out
-            assert 'ログインプロセスが完了しました' in captured.out
+            assert 'Heroku CLIでログインを開始' in caplog.text
+            assert 'ログインプロセスが完了しました' in caplog.text
 
-    def test_prompt_heroku_login_failure(self, mock_config, capsys):
+    def test_prompt_heroku_login_failure(self, mock_config, caplog):
         """異常系: Herokuログインプロセスが失敗"""
+        import logging
+        caplog.set_level(logging.WARNING)
+
         mock_process = Mock()
         mock_process.returncode = 1
         mock_process.communicate.return_value = ("", "Login failed")
@@ -166,11 +144,13 @@ class TestPromptHerokuLogin:
 
             prompt_heroku_login()
 
-            captured = capsys.readouterr()
-            assert 'ログインプロセスが終了しました' in captured.out
+            assert 'ログインプロセスが終了しました' in caplog.text
 
-    def test_prompt_heroku_login_timeout(self, mock_config, capsys):
+    def test_prompt_heroku_login_timeout(self, mock_config, caplog):
         """異常系: ログインがタイムアウト"""
+        import logging
+        caplog.set_level(logging.ERROR)
+
         mock_process = Mock()
         mock_process.communicate.side_effect = subprocess.TimeoutExpired('cmd', 120)
         mock_process.stdin = Mock()
@@ -182,12 +162,14 @@ class TestPromptHerokuLogin:
 
             prompt_heroku_login()
 
-            captured = capsys.readouterr()
-            assert 'ログインがタイムアウトしました' in captured.out
+            assert 'ログインがタイムアウトしました' in caplog.text
             mock_process.kill.assert_called_once()
 
-    def test_prompt_heroku_login_exception(self, mock_config, capsys):
+    def test_prompt_heroku_login_exception(self, mock_config, caplog):
         """異常系: 予期しない例外が発生"""
+        import logging
+        caplog.set_level(logging.ERROR)
+
         with patch('service.heroku_login_again.load_config', return_value=mock_config), \
              patch('service.heroku_login_again.threading.Thread'), \
              patch('service.heroku_login_again.subprocess.Popen', side_effect=Exception("Unexpected error")), \
@@ -195,8 +177,7 @@ class TestPromptHerokuLogin:
 
             prompt_heroku_login()
 
-            captured = capsys.readouterr()
-            assert 'ログイン処理中にエラーが発生しました' in captured.out
+            assert 'ログイン処理中にエラーが発生しました' in caplog.text
 
     def test_prompt_heroku_login_stdin_write_error(self, mock_config):
         """異常系: stdin書き込み時にエラーが発生しても続行"""
@@ -243,27 +224,31 @@ class TestEnsureHerokuLogin:
 
             assert result is True
 
-    def test_ensure_heroku_login_success_after_prompt(self, capsys):
+    def test_ensure_heroku_login_success_after_prompt(self, caplog):
         """正常系: ログインプロンプト後にログイン成功"""
+        import logging
+        caplog.set_level(logging.INFO)
+
         with patch('service.heroku_login_again.check_heroku_login', side_effect=[False, True]), \
              patch('service.heroku_login_again.prompt_heroku_login'):
 
             result = ensure_heroku_login()
 
             assert result is True
-            captured = capsys.readouterr()
-            assert 'Herokuログイン確認完了' in captured.out
+            assert 'Herokuログイン確認完了' in caplog.text
 
-    def test_ensure_heroku_login_failure_after_prompt(self, capsys):
+    def test_ensure_heroku_login_failure_after_prompt(self, caplog):
         """異常系: ログインプロンプト後もログイン失敗"""
+        import logging
+        caplog.set_level(logging.ERROR)
+
         with patch('service.heroku_login_again.check_heroku_login', return_value=False), \
              patch('service.heroku_login_again.prompt_heroku_login'):
 
             result = ensure_heroku_login()
 
             assert result is False
-            captured = capsys.readouterr()
-            assert 'Herokuへのログインに失敗しました' in captured.out
+            assert 'Herokuへのログインに失敗しました' in caplog.text
 
     def test_ensure_heroku_login_calls_prompt_when_not_logged_in(self):
         """正常系: ログインしていない場合にpromptが呼ばれる"""

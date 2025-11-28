@@ -62,9 +62,12 @@ class TestBackupWithHerokuCli:
             assert second_call[1]['text'] is True
 
     def test_backup_with_heroku_cli_capture_error(
-        self, mock_backup_dir, mock_timestamp, mock_app_name, capsys
+        self, mock_backup_dir, mock_timestamp, mock_app_name, caplog
     ):
         """異常系: バックアップキャプチャ時にエラーが発生する"""
+        import logging
+        caplog.set_level(logging.ERROR)
+
         mock_backup_dir.mkdir(parents=True, exist_ok=True)
 
         with patch('service.backup_with_heroku_cli.subprocess.run', side_effect=subprocess.CalledProcessError(1, 'cmd')):
@@ -76,13 +79,15 @@ class TestBackupWithHerokuCli:
             )
 
             assert result is False
-            captured = capsys.readouterr()
-            assert 'Herokuバックアップエラー' in captured.out
+            assert 'Herokuバックアップエラー' in caplog.text
 
     def test_backup_with_heroku_cli_download_failure(
-        self, mock_backup_dir, mock_timestamp, mock_app_name, capsys
+        self, mock_backup_dir, mock_timestamp, mock_app_name, caplog
     ):
         """異常系: バックアップダウンロード時に失敗する"""
+        import logging
+        caplog.set_level(logging.ERROR)
+
         mock_backup_dir.mkdir(parents=True, exist_ok=True)
 
         def run_side_effect(*args, **kwargs):
@@ -103,9 +108,8 @@ class TestBackupWithHerokuCli:
             )
 
             assert result is False
-            captured = capsys.readouterr()
-            assert 'Herokuバックアップ失敗' in captured.out
-            assert 'Network error' in captured.out
+            assert 'Herokuバックアップ失敗' in caplog.text
+            assert 'Network error' in caplog.text
 
     def test_backup_with_heroku_cli_creates_dump_file_path(
         self, mock_backup_dir, mock_timestamp, mock_app_name
@@ -131,9 +135,12 @@ class TestBackupWithHerokuCli:
             assert output_path == expected_path
 
     def test_backup_with_heroku_cli_logs_info_messages(
-        self, mock_backup_dir, mock_timestamp, mock_app_name, capsys
+        self, mock_backup_dir, mock_timestamp, mock_app_name, caplog
     ):
         """正常系: 適切なログメッセージが出力される"""
+        import logging
+        caplog.set_level(logging.INFO)
+
         mock_backup_dir.mkdir(parents=True, exist_ok=True)
 
         mock_result = Mock()
@@ -148,10 +155,9 @@ class TestBackupWithHerokuCli:
                 mock_app_name
             )
 
-            captured = capsys.readouterr()
-            assert 'Herokuバックアップを作成中' in captured.out
-            assert 'バックアップをダウンロード中' in captured.out
-            assert 'Herokuバックアップ完了' in captured.out
+            assert 'Herokuバックアップを作成中' in caplog.text
+            assert 'バックアップをダウンロード中' in caplog.text
+            assert 'Herokuバックアップ完了' in caplog.text
 
     def test_backup_with_heroku_cli_with_different_app_name(
         self, mock_backup_dir, mock_timestamp
@@ -178,9 +184,12 @@ class TestBackupWithHerokuCli:
             assert different_app_name in first_call[0][0]
 
     def test_backup_with_heroku_cli_exception_handling(
-        self, mock_backup_dir, mock_timestamp, mock_app_name, capsys
+        self, mock_backup_dir, mock_timestamp, mock_app_name, caplog
     ):
         """異常系: CalledProcessErrorが発生した場合の処理"""
+        import logging
+        caplog.set_level(logging.ERROR)
+
         mock_backup_dir.mkdir(parents=True, exist_ok=True)
 
         with patch('service.backup_with_heroku_cli.subprocess.run', side_effect=subprocess.CalledProcessError(1, 'cmd')):
@@ -192,8 +201,7 @@ class TestBackupWithHerokuCli:
             )
 
             assert result is False
-            captured = capsys.readouterr()
-            assert 'Herokuバックアップエラー' in captured.out
+            assert 'Herokuバックアップエラー' in caplog.text
 
     def test_backup_with_heroku_cli_empty_stderr(
         self, mock_backup_dir, mock_timestamp, mock_app_name
