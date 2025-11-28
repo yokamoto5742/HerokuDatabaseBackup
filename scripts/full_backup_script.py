@@ -20,7 +20,7 @@ if __name__ == "__main__":
 
         choice = input("\n選択してください (1-4): ").strip()
 
-        # Heroku CLIを使用する選択肢の場合、ログイン状態をチェック
+        # Heroku CLIを使用する場合はログイン状態をチェック
         if choice in ["1", "4"]:
             ensure_heroku_login()
 

@@ -7,7 +7,7 @@ import pytz
 
 sys.path.append(str(Path(__file__).parent.parent))
 
-from utils.config_manager import get_backup_tables, get_log_directory, get_log_retention_days, load_config
+from utils.config_manager import get_log_directory, get_log_retention_days, load_config
 from utils.log_rotation import setup_logging
 
 JST = pytz.timezone('Asia/Tokyo')
@@ -236,9 +236,9 @@ def main():
     setup_logging(log_directory=log_dir, log_retention_days=log_retention, log_name='RestoreScriptGenerator')
 
     logger = logging.getLogger(__name__)
-    logger.info("復元スクリプト生成器を起動しました")
+    logger.info("復元スクリプト生成コードを起動しました")
 
-    print("🛠️ Heroku復元スクリプト生成器")
+    print("🛠️ Heroku復元スクリプト生成コード")
     print("=" * 40)
 
     # バックアップディレクトリの確認
