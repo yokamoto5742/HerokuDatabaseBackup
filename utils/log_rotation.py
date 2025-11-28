@@ -11,6 +11,7 @@ def get_project_root() -> Path:
 
 
 def setup_logging(log_directory: str = 'logs', log_retention_days: int = 7, log_name: str = 'HerokuDatabaseBackup'):
+    """ロギングシステムを初期化し、古いログを削除"""
     project_root = get_project_root()
     log_dir_path = project_root / log_directory
 
@@ -19,7 +20,6 @@ def setup_logging(log_directory: str = 'logs', log_retention_days: int = 7, log_
 
     log_file = log_dir_path / f'{log_name}.log'
 
-    # config.iniからログレベルを取得
     log_level_str = get_log_level()
     log_level = getattr(logging, log_level_str, logging.INFO)
 
@@ -46,6 +46,7 @@ def setup_logging(log_directory: str = 'logs', log_retention_days: int = 7, log_
 
 
 def cleanup_old_logs(log_directory: Path, retention_days: int, log_name: str):
+    """保持期間を超えたログファイルを削除"""
     now = datetime.now()
     main_log_file = f'{log_name}.log'
 

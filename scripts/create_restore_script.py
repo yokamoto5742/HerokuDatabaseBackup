@@ -223,7 +223,7 @@ if __name__ == "__main__":
 
 
 def create_restore_script_from_backup_data(backup_dir, timestamp):
-    """backup_script.pyから呼び出される関数"""
+    """full_backup_script.pyから呼び出される関数"""
     generator = RestoreScriptGenerator(backup_dir, timestamp)
     return generator.create_restore_script()
 

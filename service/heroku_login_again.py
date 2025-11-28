@@ -73,7 +73,6 @@ def execute_heroku_login() -> bool:
             text=True
         )
 
-        # 少し待ってからEnterキーを自動送信
         time.sleep(1)
         try:
             if process.stdin is not None:
@@ -82,7 +81,6 @@ def execute_heroku_login() -> bool:
         except (BrokenPipeError, OSError):
             logger.debug("stdinへの書き込みに失敗（プロセス終了済みの可能性）")
 
-        # ログインプロセスの完了を待つ
         process.communicate(timeout=120)
 
         if process.returncode == 0:

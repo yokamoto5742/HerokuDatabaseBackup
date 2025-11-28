@@ -96,7 +96,7 @@ class TestHerokuPostgreSQLBackup:
             assert backup.parsed_url.path == "/testdb"
 
     def test_backup_with_heroku_cli_method(self, mock_env_vars, mock_config, tmp_path):
-        """正常系: backup_with_heroku_cli_methodが正しく呼ばれる"""
+        """正常系: backup_with_cliが正しく呼ばれる"""
         backup_path = str(tmp_path / "backups")
         mock_config.get.return_value = backup_path
 
@@ -106,13 +106,13 @@ class TestHerokuPostgreSQLBackup:
              patch('service.heroku_postgreSQL_backup.backup_with_heroku_cli', return_value=True) as mock_cli:
 
             backup = HerokuPostgreSQLBackup()
-            result = backup.backup_with_heroku_cli_method("test-app")
+            result = backup.backup_with_cli("test-app")
 
             assert result is True
             mock_cli.assert_called_once_with(backup.backup_dir, backup.timestamp, "test-app")
 
     def test_backup_data_as_json_method(self, mock_env_vars, mock_config, tmp_path):
-        """正常系: backup_data_as_json_methodが正しく呼ばれる"""
+        """正常系: backup_as_jsonが正しく呼ばれる"""
         backup_path = str(tmp_path / "backups")
         mock_config.get.return_value = backup_path
 
@@ -122,13 +122,13 @@ class TestHerokuPostgreSQLBackup:
              patch('service.heroku_postgreSQL_backup.backup_data_as_json', return_value=True) as mock_json:
 
             backup = HerokuPostgreSQLBackup()
-            result = backup.backup_data_as_json_method()
+            result = backup.backup_as_json()
 
             assert result is True
             mock_json.assert_called_once_with(backup.database_url, backup.backup_dir, backup.timestamp)
 
     def test_backup_data_as_csv_method(self, mock_env_vars, mock_config, tmp_path):
-        """正常系: backup_data_as_csv_methodが正しく呼ばれる"""
+        """正常系: backup_as_csvが正しく呼ばれる"""
         backup_path = str(tmp_path / "backups")
         mock_config.get.return_value = backup_path
 
@@ -138,7 +138,7 @@ class TestHerokuPostgreSQLBackup:
              patch('service.heroku_postgreSQL_backup.backup_data_as_csv', return_value=True) as mock_csv:
 
             backup = HerokuPostgreSQLBackup()
-            result = backup.backup_data_as_csv_method()
+            result = backup.backup_as_csv()
 
             assert result is True
             mock_csv.assert_called_once_with(backup.database_url, backup.backup_dir, backup.timestamp)
