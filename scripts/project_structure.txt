@@ -1,0 +1,34 @@
+============================================================
+プロジェクト構造: HerokuDatabaseBackup
+パス: C:\Users\yokam\PycharmProjects\HerokuDatabaseBackup
+生成日時: 2025-11-28 13:13:53
+============================================================
+
+└── HerokuDatabaseBackup
+    ├── docs
+    │   ├── README.md
+    │   └── LICENSE
+    ├── scripts
+    │   ├── __init__.py
+    │   ├── create_restore_script.py
+    │   ├── full_backup_script.py
+    │   └── project_structure.py
+    ├── service
+    │   ├── __init__.py
+    │   ├── backup_data_as_csv.py
+    │   ├── backup_data_as_json.py
+    │   ├── backup_with_heroku_cli.py
+    │   ├── cleanup_old_backups.py
+    │   ├── heroku_login_again.py
+    │   └── heroku_postgreSQL_backup.py
+    ├── utils
+    │   ├── config.ini
+    │   ├── __init__.py
+    │   ├── config_manager.py
+    │   ├── database_helper.py
+    │   └── log_rotation.py
+    ├── requirements.txt
+    ├── build.py
+    ├── CLAUDE.md
+    ├── main.py
+    └── pyrightconfig.json
