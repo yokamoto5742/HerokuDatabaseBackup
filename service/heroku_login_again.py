@@ -36,13 +36,7 @@ def open_folder_async(folder_path: str) -> None:
     time.sleep(2)
     try:
         if os.path.exists(folder_path):
-            print(f"📂 フォルダを開いています: {folder_path}")
-            if sys.platform == "win32":
-                subprocess.run(["explorer", folder_path], shell=True)
-            elif sys.platform == "darwin":
-                subprocess.run(["open", folder_path])
-            else:
-                subprocess.run(["xdg-open", folder_path])
+            subprocess.run(["explorer", folder_path], shell=True)
         else:
             print(f"⚠️ フォルダが見つかりません: {folder_path}")
     except Exception as e:
