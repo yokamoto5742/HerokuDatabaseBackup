@@ -52,9 +52,6 @@ class HerokuPostgreSQLBackup:
         logger.info(f"バックアップ開始 - {self.timestamp}")
         logger.info(f"バックアップディレクトリ: {self.backup_dir.absolute()}")
 
-        print(f"🚀 バックアップ開始 - {self.timestamp}")
-        print(f"📁 バックアップディレクトリ: {self.backup_dir.absolute()}")
-
         results = {}
 
         if app_name:
@@ -62,7 +59,6 @@ class HerokuPostgreSQLBackup:
             results['heroku_cli'] = self.backup_with_cli(app_name)
         else:
             logger.warning("Heroku app名が指定されていないため、Heroku CLIバックアップをスキップ")
-            print("⚠️ Heroku app名が指定されていないため、Heroku CLIバックアップをスキップ")
             results['heroku_cli'] = False
 
         logger.info("JSONバックアップを実行します")
@@ -72,15 +68,9 @@ class HerokuPostgreSQLBackup:
         results['csv'] = self.backup_as_csv()
 
         logger.info("バックアップ結果:")
-        print("\n📊 バックアップ結果:")
         for method, success in results.items():
             status = "成功" if success else "失敗"
             logger.info(f"  {method}: {status}")
             status_emoji = "✅ 成功" if success else "❌ 失敗"
-            print(f"  {method}: {status_emoji}")
-
-        successful_methods = sum(results.values())
-        logger.info(f"{successful_methods}/3 の方法で成功")
-        print(f"\n🎯 {successful_methods}/3 の方法で成功")
 
         return results

@@ -1,7 +1,6 @@
 import logging
 import os
 import subprocess
-import sys
 import threading
 import time
 
@@ -51,10 +50,8 @@ def open_folder_in_background(executable_path: str) -> None:
 
 
 def execute_heroku_login() -> bool:
-    """Heroku CLIログインコマンドを実行"""
+    """Heroku CLIのログインコマンドを実行"""
     logger.info("Heroku CLIでログインを開始します")
-    print("🔄 Heroku CLIでログインを開始...")
-    print("💡 ブラウザが開いたらログインしてください")
 
     process: subprocess.Popen[str] | None = None
     try:
@@ -79,30 +76,24 @@ def execute_heroku_login() -> bool:
 
         if process.returncode == 0:
             logger.info("ログインプロセスが完了しました")
-            print("✅ ログインプロセスが完了しました")
             return True
         else:
             logger.warning("ログインプロセスが終了しました")
-            print("⚠️ ログインプロセスが終了しました")
             return False
 
     except subprocess.TimeoutExpired:
         logger.error("ログインがタイムアウトしました")
-        print("⚠️ ログインがタイムアウトしました")
         if process is not None:
             process.kill()
         return False
     except Exception as e:
         logger.error(f"ログイン処理中にエラーが発生しました: {e}", exc_info=True)
-        print(f"❌ ログイン処理中にエラーが発生しました: {e}")
         return False
 
 
 def prompt_heroku_login() -> None:
     """Herokuに再度ログインするように促す"""
     logger.warning("Heroku CLIのログイン状態が切れています")
-    print("\n⚠️ Heroku CLIのログイン状態が切れています")
-    print("⚠️ Herokuに再度ログインしてください\n")
 
     config = load_config()
     executable_file_path = config["Paths"]["executable_file_path"]
@@ -112,7 +103,7 @@ def prompt_heroku_login() -> None:
 
 
 def ensure_heroku_login() -> bool:
-    """Herokuにログインしているか確認し、必要に応じてログインを促す"""
+    """Herokuにログインしているかを確認"""
     logger.info("Herokuログイン状態を確認中...")
 
     if not check_heroku_login():
@@ -121,11 +112,9 @@ def ensure_heroku_login() -> bool:
         # ログイン後に再度チェック
         if not check_heroku_login():
             logger.error("Herokuへのログインに失敗しました")
-            print("❌ Herokuへのログインに失敗しました")
             return False
 
         logger.info("Herokuログイン確認完了")
-        print("✅ Herokuログイン確認完了")
     else:
         logger.info("Herokuログイン確認完了")
 
