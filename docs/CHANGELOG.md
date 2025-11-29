@@ -5,6 +5,11 @@
 
 ## [Unreleased]
 
+## [1.0.1] - 2025-11-30
+
+### Fixed
+- `service/heroku_postgreSQL_backup.py` の未使用変数エラーを修正: ログ出力で `status_emoji` 変数を正しく使用するように変更
+
 ## [1.0.0] - 2025-11-29
 
 ### Added
