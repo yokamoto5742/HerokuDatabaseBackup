@@ -69,8 +69,7 @@ class HerokuPostgreSQLBackup:
 
         logger.info("バックアップ結果:")
         for method, success in results.items():
-            status = "成功" if success else "失敗"
-            logger.info(f"  {method}: {status}")
             status_emoji = "✅ 成功" if success else "❌ 失敗"
+            logger.info(f"  {method}: {status_emoji}")
 
         return results

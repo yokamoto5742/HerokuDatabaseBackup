@@ -1,6 +1,6 @@
 {
   "typeCheckingMode": "standard",
-  "pythonVersion": "3.12",
+  "pythonVersion": "3.11",
   "include": ["service","utils"],
   "exclude": ["tests", "scripts"],
   "reportMissingTypeStubs": false,
