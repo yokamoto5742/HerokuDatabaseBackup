@@ -42,12 +42,9 @@
 
 ## 主な技術スタック
 
-- Python 3.10+
+- Python 3.12
 - SQLAlchemy 2.0.44
 - psycopg2（PostgreSQL接続ドライバ）
 - pandas 2.3.3（CSVデータ操作）
 - pytz 2025.2（タイムゾーン処理）
 - python-dotenv 1.2.1（環境変数管理）
-- PyInstaller 6.17.0（実行可能ファイル生成）
-- pytest 9.0.1（テストフレームワーク）
-- Pyright 1.1.407（型チェッカー）

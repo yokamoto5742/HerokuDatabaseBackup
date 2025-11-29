@@ -1,25 +1,22 @@
 # Heroku PostgreSQL バックアップツール
 
-Herokuホストの PostgreSQL データベースを複数のフォーマット（Heroku CLI、JSON、CSV）で自動バックアップし、古いバックアップを管理するPythonツールです
+Heroku PostgreSQL データベースを複数のフォーマット（Heroku CLI、JSON、CSV）でバックアップします。
 
 ## 主な機能
 
-- **Heroku CLI バックアップ**: 公式Heroku CLIを使用した完全なダンプファイル生成
+- **Heroku CLI バックアップ**: Heroku CLIを使用した完全なダンプファイル生成
 - **JSON データエクスポート**: 指定テーブルをJSON形式でエクスポート（タイムゾーン対応）
 - **CSV データエクスポート**: pandasを使用したCSV形式でのエクスポート
 - **自動クリーンアップ**: 設定日数を超過した古いバックアップの自動削除
 - **リストア機能**: 既存バックアップから復元スクリプトを自動生成
-- **ロギングシステム**: 詳細な実行ログと自動ログローテーション
-- **実行可能ファイル化**: PyInstallerを使用したWindows実行ファイル対応
 
 ## 必要な環境
 
 ### 開発環境
-- Python 3.10以上
-- pip
+- Python 3.12以上
 
 ### 実行環境
-- Python 3.10以上（開発実行時）
+- Python 3.12以上（開発実行時）
 - Heroku CLI（Heroku CLIバックアップ使用時）
 - PostgreSQL接続情報（DATABASE_URL環境変数）
 
@@ -36,8 +33,6 @@ cd HerokuDatabaseBackup
 python -m venv .venv
 # Windows
 .venv\Scripts\activate
-# macOS/Linux
-source .venv/bin/activate
 ```
 
 ### 3. 依存関係のインストール
@@ -112,9 +107,9 @@ HerokuDatabaseBackup/
 │   └── heroku_login_again.py         # Heroku認証チェック
 │
 ├── scripts/                         # スタンドアロンスクリプト
-│   ├── full_backup_script.py         # インタラクティブバックアップUI
+│   ├── full_backup_script.py         # インタラクティブバックアップ
 │   ├── create_restore_script.py      # リストアスクリプト生成
-│   └── project_structure.py          # プロジェクト構造確認用
+│   └── project_structure.py          # プロジェクト構造確認
 │
 ├── utils/                           # ユーティリティモジュール
 │   ├── config_manager.py            # 設定ファイル管理
@@ -195,11 +190,6 @@ python build.py
 ```
 生成されたファイル: `dist/HerokuDatabaseBackup.exe`（Windows環境）
 
-PyInstaller実行時の自動処理：
-- `.env`ファイルをバンドル
-- `utils/config.ini`をバンドル
-- 依存ライブラリを静的リンク
-
 ## トラブルシューティング
 
 ### Heroku CLIが見つからない
@@ -235,7 +225,6 @@ PermissionError: [Errno 13] Permission denied: 'C:\path\to\backups'
 | pandas | CSVデータ操作 |
 | pytz | タイムゾーン処理 |
 | python-dotenv | 環境変数管理 |
-| pyinstaller | 実行可能ファイル生成 |
 
 詳細は`requirements.txt`を参照してください
 
