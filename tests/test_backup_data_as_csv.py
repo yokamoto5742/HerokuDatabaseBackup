@@ -237,7 +237,7 @@ class TestBackupDataAsCsv:
             )
 
             assert result is True
-            assert mock_read.call_count == 3
+            assert mock_read.call_count == 4
             tables_called = [call[0][0] for call in mock_read.call_args_list]
             assert 'app_settings' in tables_called
             assert 'prompts' in tables_called
