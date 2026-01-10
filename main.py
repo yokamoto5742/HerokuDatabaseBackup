@@ -14,7 +14,6 @@ from utils.log_rotation import setup_logging
 if __name__ == "__main__":
     load_dotenv()
 
-    # ログシステムの初期化
     log_dir = get_log_directory()
     log_retention = get_log_retention_days()
     setup_logging(log_directory=log_dir, log_retention_days=log_retention)
@@ -24,7 +23,6 @@ if __name__ == "__main__":
     try:
         logger.info("バックアップ処理を開始します")
 
-        # Herokuログイン状態をチェック
         ensure_heroku_login()
 
         backup = HerokuPostgreSQLBackup()

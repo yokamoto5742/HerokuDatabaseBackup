@@ -20,17 +20,16 @@ if __name__ == "__main__":
 
         choice = input("\n選択してください (1-4): ").strip()
 
-        # Heroku CLIを使用する場合はログイン状態をチェック
         if choice in ["1", "4"]:
             ensure_heroku_login()
 
         if choice == "1":
             app_name = os.environ.get("HEROKU_APP_NAME")
-            backup.backup_with_heroku_cli_method(app_name)
+            backup.backup_with_cli(app_name)
         elif choice == "2":
-            backup.backup_data_as_json_method()
+            backup.backup_as_json()
         elif choice == "3":
-            backup.backup_data_as_csv_method()
+            backup.backup_as_csv()
         elif choice == "4":
             app_name = os.environ.get("HEROKU_APP_NAME")
             backup.backup_all(app_name if app_name else None)
